@@ -418,9 +418,12 @@ body {
   align-items: center;
 }
 
-#header-line {
+/* Gold header line — animated via scaleX in animation.js */
+#header-line-inner {
   width: 100%;
-  height: 2px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.6), transparent);
+  transform-origin: left center;
 }
 
 #header-right {

@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=1771373370280">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
   <div id="scene">
@@ -31,22 +31,17 @@
     <div id="water-shimmer"></div>
 
     <!-- Layer 2: Floating particles (pollen/mist dots) -->
-    <div id="particles-layer">
-      <!-- Populated by JS -->
-    </div>
+    <div id="particles-layer"></div>
 
-    <!-- Layer 3: River current path (SVG animated ripples) -->
+    <!-- Layer 3: River current paths + ripple rings (SVG) -->
     <div id="river-layer">
       <svg id="river-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-        <!-- Animated river current lines -->
         <g id="river-currents" opacity="0.18">
           <path id="current-1" d="M-100,720 Q300,700 600,715 Q900,730 1200,708 Q1500,690 2020,718" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
           <path id="current-2" d="M-100,740 Q280,755 560,740 Q880,724 1160,745 Q1460,762 2020,738" fill="none" stroke="#C9A84C" stroke-width="1"/>
           <path id="current-3" d="M-100,760 Q320,742 640,758 Q940,772 1240,752 Q1540,735 2020,760" fill="none" stroke="#C9A84C" stroke-width="0.8"/>
           <path id="current-4" d="M-100,775 Q350,768 700,780 Q1000,790 1300,770 Q1600,753 2020,778" fill="none" stroke="#C9A84C" stroke-width="0.6"/>
         </g>
-
-        <!-- Ripple rings that appear and fade -->
         <g id="ripple-rings">
           <circle id="ripple-a" cx="420" cy="748" r="0" fill="none" stroke="rgba(201,168,76,0.4)" stroke-width="1"/>
           <circle id="ripple-b" cx="980" cy="730" r="0" fill="none" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
@@ -60,25 +55,25 @@
       <!-- Populated by animation.js -->
     </div>
 
-    <!-- Layer 5: Foreground botanicals / depth layer -->
+    <!-- Layer 5: Foreground botanicals -->
     <div id="foreground-layer">
       <img id="foreground-botanicals" src="https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Fzen_foreground_botanicals-1771373869671.png" alt="">
     </div>
 
     <!-- Layer 6: UI Chrome -->
     <div id="ui-layer">
+
       <!-- Top header bar -->
       <div id="header-bar">
         <div id="header-left">
           <div id="brand-mark">
-            <!-- SVG Lotus icon -->
             <svg id="lotus-icon" viewBox="0 0 60 50" fill="none">
               <g id="lotus-petals">
-                <path id="petal-center" d="M30,42 C30,42 20,28 20,18 C20,10 25,5 30,5 C35,5 40,10 40,18 C40,28 30,42 30,42Z" fill="rgba(201,168,76,0.6)" stroke="#C9A84C" stroke-width="0.8"/>
-                <path id="petal-left" d="M30,42 C30,42 12,32 8,22 C5,14 9,7 15,8 C21,9 26,18 30,42Z" fill="rgba(201,168,76,0.35)" stroke="#C9A84C" stroke-width="0.6"/>
-                <path id="petal-right" d="M30,42 C30,42 48,32 52,22 C55,14 51,7 45,8 C39,9 34,18 30,42Z" fill="rgba(201,168,76,0.35)" stroke="#C9A84C" stroke-width="0.6"/>
-                <path id="petal-far-left" d="M30,42 C30,42 5,38 2,28 C-1,19 5,13 11,16 C17,19 22,30 30,42Z" fill="rgba(201,168,76,0.2)" stroke="#C9A84C" stroke-width="0.5"/>
-                <path id="petal-far-right" d="M30,42 C30,42 55,38 58,28 C61,19 55,13 49,16 C43,19 38,30 30,42Z" fill="rgba(201,168,76,0.2)" stroke="#C9A84C" stroke-width="0.5"/>
+                <path d="M30,42 C30,42 20,28 20,18 C20,10 25,5 30,5 C35,5 40,10 40,18 C40,28 30,42 30,42Z" fill="rgba(201,168,76,0.6)" stroke="#C9A84C" stroke-width="0.8"/>
+                <path d="M30,42 C30,42 12,32 8,22 C5,14 9,7 15,8 C21,9 26,18 30,42Z" fill="rgba(201,168,76,0.35)" stroke="#C9A84C" stroke-width="0.6"/>
+                <path d="M30,42 C30,42 48,32 52,22 C55,14 51,7 45,8 C39,9 34,18 30,42Z" fill="rgba(201,168,76,0.35)" stroke="#C9A84C" stroke-width="0.6"/>
+                <path d="M30,42 C30,42 5,38 2,28 C-1,19 5,13 11,16 C17,19 22,30 30,42Z" fill="rgba(201,168,76,0.2)" stroke="#C9A84C" stroke-width="0.5"/>
+                <path d="M30,42 C30,42 55,38 58,28 C61,19 55,13 49,16 C43,19 38,30 30,42Z" fill="rgba(201,168,76,0.2)" stroke="#C9A84C" stroke-width="0.5"/>
               </g>
             </svg>
           </div>
@@ -89,20 +84,16 @@
         </div>
 
         <div id="header-center">
-          <!-- Animated gold line -->
-          <svg id="header-line" viewBox="0 0 400 2" preserveAspectRatio="none">
-            <line id="header-line-path" x1="0" y1="1" x2="400" y2="1" stroke="#C9A84C" stroke-width="1" opacity="0.6"/>
-          </svg>
+          <!-- Gold line animated via scaleX (div is reliable across all browsers) -->
+          <div id="header-line-inner"></div>
         </div>
 
         <div id="header-right">
-          <div id="header-date-wrap">
-            <div id="header-category-label">TODAY'S FEATURED</div>
-          </div>
+          <div id="header-category-label">TODAY'S FEATURED</div>
         </div>
       </div>
 
-      <!-- Bottom ambient text strip -->
+      <!-- Bottom footer strip -->
       <div id="footer-strip">
         <div id="footer-text-left">LABORATORY TESTED &nbsp;&nbsp;·&nbsp;&nbsp; PREMIUM QUALITY &nbsp;&nbsp;·&nbsp;&nbsp; RESPONSIBLY SOURCED</div>
         <div id="footer-text-right">ASK A SPECIALIST FOR RECOMMENDATIONS</div>
@@ -114,6 +105,6 @@
 
   </div>
 
-  <script src="animation.js?v=1771373370280"></script>
+  <script src="animation.js?v=2"></script>
 </body>
 </html>

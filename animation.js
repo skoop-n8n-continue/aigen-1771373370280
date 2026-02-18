@@ -3,8 +3,7 @@
    Creative concept: Products drift in from upstream on the
    river current — each card glides in from the left like a
    leaf floating on water, settles gently, breathes softly,
-   then dissolves downstream to the right. River ripples
-   and mist particles create an immersive living environment.
+   then dissolves downstream to the right.
    ============================================================ */
 
 gsap.registerPlugin(SplitText, CustomEase, DrawSVGPlugin);
@@ -21,22 +20,16 @@ const PRODUCTS_PER_CYCLE = 3;
    Cards are positioned asymmetrically, as if
    floating at different depths in the stream.
    Card 0 = upper left zone
-   Card 1 = center (slightly lower)
+   Card 1 = center
    Card 2 = lower right zone
 */
 const CARD_POSITIONS = [
-  { left: 148, top: 155 },   // upstream left, higher on the "bank"
-  { left: 790, top: 265 },   // mid-river center
-  { left: 1418, top: 165 },  // downstream right
+  { left: 148, top: 155 },
+  { left: 790, top: 265 },
+  { left: 1418, top: 165 },
 ];
 
-/* ── Drift offsets — entry from left, exit to right ── */
-const CARD_ENTRY_X = [-440, -440, -440];  // all enter from off-screen left
-const CARD_ENTRY_Y = [20, -15, 25];        // slight vertical drift variance
-
 let PRODUCTS = [];
-let ambientTimeline = null;
-let particlesTl = null;
 
 /* ============================================================
    BOOTSTRAP
@@ -60,10 +53,9 @@ async function loadProducts() {
    SCENE INIT — one-time setup for persistent elements
    ============================================================ */
 function initScene() {
-  /* Spawn ambient particles */
   spawnParticles();
 
-  /* Animate lotus petals gently */
+  /* Lotus petal gentle sway */
   gsap.to('#lotus-petals', {
     rotation: 3,
     transformOrigin: '50% 90%',
@@ -73,14 +65,14 @@ function initScene() {
     repeat: -1
   });
 
-  /* Header elements fade in */
+  /* Header / footer fade in */
   gsap.from('#header-bar', { opacity: 0, y: -12, duration: 1.8, ease: 'power2.out', delay: 0.3 });
   gsap.from('#footer-strip', { opacity: 0, y: 12, duration: 1.8, ease: 'power2.out', delay: 0.5 });
 
-  /* DrawSVG header line reveal */
-  gsap.fromTo('#header-line-path',
-    { drawSVG: '0%' },
-    { drawSVG: '100%', duration: 2.4, ease: 'power2.inOut', delay: 0.6 }
+  /* Animate the header gold line via scaleX — no DrawSVG needed on <line> */
+  gsap.fromTo('#header-line-inner',
+    { scaleX: 0, transformOrigin: 'left center' },
+    { scaleX: 1, duration: 2.4, ease: 'power2.inOut', delay: 0.6 }
   );
 }
 
@@ -88,27 +80,12 @@ function initScene() {
    AMBIENT ENVIRONMENT — looping subtle motion
    ============================================================ */
 function startAmbient() {
-  ambientTimeline = gsap.timeline({ repeat: -1 });
-
   /* Slow background parallax drift */
-  ambientTimeline.to('#background', {
-    x: 18,
-    y: 6,
-    duration: 28,
-    ease: 'sine.inOut',
-  }, 0)
-  .to('#background', {
-    x: -12,
-    y: -4,
-    duration: 28,
-    ease: 'sine.inOut',
-  }, 28)
-  .to('#background', {
-    x: 0,
-    y: 0,
-    duration: 14,
-    ease: 'sine.inOut',
-  }, 56);
+  const bgTl = gsap.timeline({ repeat: -1 });
+  bgTl
+    .to('#background', { x: 18, y: 6, duration: 28, ease: 'sine.inOut' }, 0)
+    .to('#background', { x: -12, y: -4, duration: 28, ease: 'sine.inOut' }, 28)
+    .to('#background', { x: 0, y: 0, duration: 14, ease: 'sine.inOut' }, 56);
 
   /* Foreground botanicals gentle sway */
   gsap.to('#foreground-botanicals', {
@@ -122,50 +99,45 @@ function startAmbient() {
     repeat: -1
   });
 
-  /* River currents flowing */
   animateRiverCurrents();
-
-  /* Ripple rings */
   scheduleRipples();
 }
 
 function animateRiverCurrents() {
-  const currents = ['#current-1', '#current-2', '#current-3', '#current-4'];
-  currents.forEach((id, i) => {
-    gsap.fromTo(id,
-      { strokeDashoffset: 600 + i * 120 },
+  const currentConfigs = [
+    { id: '#current-1', dasharray: '55 25', duration: 14, offset: 600 },
+    { id: '#current-2', dasharray: '45 20', duration: 17, offset: 720 },
+    { id: '#current-3', dasharray: '38 18', duration: 19, offset: 840 },
+    { id: '#current-4', dasharray: '30 15', duration: 21, offset: 960 },
+  ];
+
+  currentConfigs.forEach((cfg, i) => {
+    const el = document.querySelector(cfg.id);
+    if (!el) return;
+    el.style.strokeDasharray = cfg.dasharray;
+    gsap.fromTo(el,
+      { strokeDashoffset: cfg.offset },
       {
         strokeDashoffset: 0,
-        duration: 14 + i * 3,
+        duration: cfg.duration,
         ease: 'none',
         repeat: -1,
         delay: i * 1.2
       }
     );
-    // Set stroke-dasharray for the flow effect
-    const el = document.querySelector(id);
-    if (el) {
-      el.style.strokeDasharray = `${40 + i * 15} ${20 + i * 8}`;
-    }
   });
 }
 
 function scheduleRipples() {
+  /* Animate SVG circle r attribute using gsap attr plugin */
   function animateRipple(id, delay) {
+    const el = document.querySelector(id);
+    if (!el) return;
     const tl = gsap.timeline({ delay, repeat: -1, repeatDelay: 4 + Math.random() * 3 });
-    tl.to(id, { r: 0, opacity: 0, duration: 0, immediateRender: true })
-      .to(id, {
-        r: 35,
-        opacity: 1,
-        duration: 0.4,
-        ease: 'power2.out'
-      })
-      .to(id, {
-        r: 90,
-        opacity: 0,
-        duration: 1.8,
-        ease: 'power1.out'
-      });
+    tl
+      .set(el, { attr: { r: 0 }, opacity: 0 })
+      .to(el, { attr: { r: 35 }, opacity: 0.8, duration: 0.4, ease: 'power2.out' })
+      .to(el, { attr: { r: 90 }, opacity: 0, duration: 1.8, ease: 'power1.out' });
   }
   animateRipple('#ripple-a', 1.5);
   animateRipple('#ripple-b', 3.8);
@@ -185,20 +157,18 @@ function spawnParticles() {
 
     const size = 2 + Math.random() * 5;
     const startX = Math.random() * 1920;
-    const startY = 600 + Math.random() * 380; // lower half — near river
+    const startY = 600 + Math.random() * 380;
     const opacity = 0.15 + Math.random() * 0.45;
+    const duration = 12 + Math.random() * 18;
+    const delay = Math.random() * 20;
 
     p.style.width = size + 'px';
     p.style.height = size + 'px';
     p.style.left = startX + 'px';
     p.style.top = startY + 'px';
-    p.style.opacity = 0;
+    p.style.opacity = '0';
 
     container.appendChild(p);
-
-    /* Each particle drifts rightward and slightly upward, fading in/out */
-    const duration = 12 + Math.random() * 18;
-    const delay = Math.random() * 20;
 
     gsap.fromTo(p,
       { opacity: 0, x: 0, y: 0 },
@@ -206,18 +176,15 @@ function spawnParticles() {
         opacity: opacity,
         x: 220 + Math.random() * 180,
         y: -(30 + Math.random() * 60),
-        duration: duration,
-        delay: delay,
+        duration,
+        delay,
         ease: 'none',
         repeat: -1,
-        repeatDelay: 0,
         onRepeat: function() {
           gsap.set(p, {
-            x: 0,
-            y: 0,
-            opacity: 0,
-            left: Math.random() * 1920,
-            top: 600 + Math.random() * 380
+            x: 0, y: 0, opacity: 0,
+            left: Math.random() * 1920 + 'px',
+            top: (600 + Math.random() * 380) + 'px'
           });
         }
       }
@@ -246,7 +213,7 @@ function formatPrice(priceStr) {
 }
 
 function getThcValue(product) {
-  if (!product.labResults || product.labResults.length === 0) return null;
+  if (!product.labResults || !product.labResults.length) return null;
   const thc = product.labResults.find(r => r.labTest === 'THC');
   return thc ? thc.value : null;
 }
@@ -261,17 +228,16 @@ function renderBatch(products) {
   products.forEach((product, index) => {
     const pos = CARD_POSITIONS[index];
     const thc = getThcValue(product);
-    const hasDiscount = product.discounted_price && product.discounted_price > 0;
+    const hasDiscount = product.discounted_price && parseFloat(product.discounted_price) > 0;
     const strainType = (product.strainType || 'Hybrid').toLowerCase();
 
     const card = document.createElement('div');
     card.className = 'product-card';
     card.dataset.index = index;
+
+    /* Position the card — GSAP will handle x/y transforms */
     card.style.left = pos.left + 'px';
     card.style.top = pos.top + 'px';
-    /* Start offscreen left — animation will bring it in */
-    card.style.transform = `translateX(${CARD_ENTRY_X[index]}px) translateY(${CARD_ENTRY_Y[index]}px)`;
-    card.style.opacity = '0';
 
     card.innerHTML = `
       <span class="strain-badge ${strainType}">${product.strainType || 'Hybrid'}</span>
@@ -303,6 +269,9 @@ function renderBatch(products) {
     `;
 
     container.appendChild(card);
+
+    /* Set GSAP initial state: offscreen left, invisible */
+    gsap.set(card, { x: -500, y: 20 * (index % 2 === 0 ? 1 : -1), opacity: 0 });
   });
 }
 
@@ -313,11 +282,13 @@ function animateCycle(batchIndex) {
   const batch = getBatch(batchIndex);
   renderBatch(batch);
 
-  const cards = document.querySelectorAll('.product-card');
-  const CYCLE_DURATION = 9;    // total seconds per batch
-  const ENTRANCE_DUR = 1.6;    // each card floats in
-  const IDLE_DUR = 5.8;        // living moment duration
-  const EXIT_DUR = 1.4;        // drift away downstream
+  const cards = Array.from(document.querySelectorAll('.product-card'));
+
+  const ENTRANCE_DUR = 1.6;
+  const IDLE_DUR = 6.0;
+  const EXIT_DUR = 1.4;
+  const STAGGER = 0.38;
+  const totalEntranceEnd = ENTRANCE_DUR + (cards.length - 1) * STAGGER;
 
   const tl = gsap.timeline({
     onComplete: () => animateCycle(batchIndex + 1)
@@ -325,84 +296,67 @@ function animateCycle(batchIndex) {
 
   /* ── ACT 1: ENTRANCE — cards float in from upstream (left) ── */
   cards.forEach((card, i) => {
-    const entryY = CARD_ENTRY_Y[i];
-    const staggerOffset = i * 0.38;
-
     tl.to(card, {
       x: 0,
       y: 0,
       opacity: 1,
       duration: ENTRANCE_DUR,
       ease: 'riverFloat',
-    }, staggerOffset);
+    }, i * STAGGER);
   });
 
-  /* ── ACT 2: IDLE — living moment, gentle water-bob & breathe ── */
-  const idleStart = ENTRANCE_DUR + (cards.length - 1) * 0.38 + 0.2;
+  /* ── ACT 2: IDLE — gentle water-bob per card ── */
+  const idleStart = totalEntranceEnd + 0.2;
 
   cards.forEach((card, i) => {
-    /* Gentle vertical bob — each slightly different phase */
-    const bobDuration = 3.8 + i * 0.55;
-    const bobAmount = 4 + i * 1.5;
+    const bobAmt = 5 + i * 1.5;
+    const bobDur = 3.6 + i * 0.5;
+    const rotAmt = 0.4 * (i % 2 === 0 ? 1 : -1);
 
+    /* Vertical bob — timeline-local, won't conflict with entrance */
     tl.to(card, {
-      y: -bobAmount,
-      duration: bobDuration / 2,
+      y: -bobAmt,
+      duration: bobDur,
       ease: 'sine.inOut',
+      yoyo: true,
+      repeat: 1,
     }, idleStart + i * 0.3);
 
+    /* Subtle rotation */
     tl.to(card, {
-      y: 0,
-      duration: bobDuration / 2,
+      rotation: rotAmt,
+      duration: 3.5,
       ease: 'sine.inOut',
+      yoyo: true,
       repeat: 1,
-      yoyo: true
-    }, idleStart + bobDuration / 2 + i * 0.3);
-
-    /* Subtle rotation drift — like floating on water */
-    tl.to(card, {
-      rotation: 0.35 * (i % 2 === 0 ? 1 : -1),
-      duration: 4.5,
-      ease: 'sine.inOut',
-    }, idleStart + i * 0.5);
-
-    tl.to(card, {
-      rotation: 0,
-      duration: 2,
-      ease: 'sine.inOut',
-    }, idleStart + 4.5 + i * 0.5);
+    }, idleStart + i * 0.4);
 
     /* Scale breathe */
     tl.to(card, {
-      scale: 1.012,
-      duration: 3.2,
+      scale: 1.013,
+      duration: 2.8,
       ease: 'sine.inOut',
+      yoyo: true,
+      repeat: 1,
       transformOrigin: 'center bottom',
     }, idleStart + 0.8 + i * 0.4);
-
-    tl.to(card, {
-      scale: 1,
-      duration: 2.2,
-      ease: 'sine.inOut',
-    }, idleStart + 0.8 + 3.2 + i * 0.4);
   });
 
   /* ── ACT 3: EXIT — cards drift downstream (to the right) ── */
   const exitStart = idleStart + IDLE_DUR;
 
   cards.forEach((card, i) => {
-    const staggerOffset = i * 0.28;
     tl.to(card, {
-      x: 2200,                  // drift off right edge
-      y: 30 + i * 8,            // slight downward drift as they go
+      x: 2300,
+      y: 25 + i * 8,
       opacity: 0,
       duration: EXIT_DUR,
       ease: 'waterExit',
-    }, exitStart + staggerOffset);
+    }, exitStart + i * 0.28);
   });
 
-  /* ── Small pause before next batch ── */
-  tl.to({}, { duration: 0.4 }, exitStart + EXIT_DUR + (cards.length - 1) * 0.28);
+  /* Brief gap before next batch */
+  tl.to({}, { duration: 0.5 }, exitStart + EXIT_DUR + (cards.length - 1) * 0.28);
 
   return tl;
 }
