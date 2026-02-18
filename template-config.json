@@ -1,51 +1,33 @@
 {
-  "template_id": "zen-garden-dispensary-v1-1771373370280",
-  "name": "Zen Garden Dispensary Menu",
-  "created_at": "2026-02-18T00:47:53.000Z",
-  "version": "1.0.1",
-
+  "template_id": "zen-garden-dispensary-v2",
+  "name": "Zen Garden Flow",
+  "created_at": "2026-02-18T00:00:00Z",
+  "version": "2.0.0",
   "theme": {
-    "style": "zen-luxury-spa",
-    "description": "A premium zen garden aesthetic with soft flowing water elements. Product cards float in like leaves on a river current, settle gently, and drift downstream. Inspired by Japanese garden design merged with modern luxury dispensary aesthetics.",
-    "colors": ["#7A9E7E", "#E8DCC8", "#F5EFE0", "#3D5A3E", "#C9A84C", "#2C3A2D"],
-    "mood": "calming, premium, medically-focused, zen, serene, luxury",
-    "tags": ["zen", "japanese-garden", "earth-tones", "sage-green", "gold", "dispensary", "luxury", "spa", "water", "floating"]
+    "style": "luxury_spa",
+    "description": "Premium, calming zen garden aesthetic with soft flowing water elements and gentle animations.",
+    "colors": ["#7A9E7E", "#E8DCC8", "#C9A84C", "#3D5A3E"],
+    "mood": "calming, premium, organic, flowing",
+    "tags": ["dispensary", "menu", "zen", "nature", "luxury"]
   },
-
   "capabilities": {
     "products_per_cycle": 3,
     "cycles_through_all_products": true
   },
-
   "animation": {
-    "cycle_duration": 12,
+    "duration": 10,
     "fps": 30,
-    "entrance_duration": 2.0,
-    "idle_duration": 5.8,
+    "entrance_duration": 1.6,
+    "idle_duration": 7,
     "exit_duration": 1.4,
-    "animation_concept": "River float — cards drift in from left (upstream), breathe gently while on display with a water-bob motion, then drift downstream to the right",
-    "uses_plugins": ["CustomEase"]
+    "uses_plugins": ["SplitText", "CustomEase", "MotionPathPlugin", "DrawSVGPlugin", "MorphSVGPlugin"]
   },
-
   "assets": {
     "background": "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Fzen_garden_background-1771373827757.png",
-    "foreground": "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Fzen_foreground_botanicals-1771373869671.png",
-    "overlays": ["zen_foreground_botanicals"],
-    "icons": ["lotus-svg-inline"],
+    "overlays": ["https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Fzen_foreground_botanicals-1771373869671.png"],
+    "icons": [],
     "fonts": ["Cormorant Garamond", "Jost"]
   },
-
-  "product_fields_used": {
-    "name": true,
-    "category": true,
-    "vendor": true,
-    "price": true,
-    "discounted_price": true,
-    "image_url": true,
-    "strainType": true,
-    "labResults_THC": true
-  },
-
   "technical": {
     "resolution": "1920x1080",
     "performance": "optimized",

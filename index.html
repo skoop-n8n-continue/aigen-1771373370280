@@ -2,37 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- Cache busting -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zen Garden Dispensary Menu</title>
 
-  <!-- GSAP Core + Free Plugins Only -->
+  <!-- GSAP Core + Plugins (User Provided CDNs) -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/SplitText.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/CustomEase.min.js"></script>
-  <!-- Paid plugins removed to prevent crash -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/MotionPathPlugin.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/DrawSVGPlugin.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/MorphSVGPlugin.min.js"></script>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=1771375657">
+  <!-- Main Styles -->
+  <link rel="stylesheet" href="style.css?v=1771375658">
 </head>
 <body>
   <div id="scene">
-
-    <!-- Layer 0: Background Image -->
+    <!-- Layer 0: Background -->
     <div id="background"></div>
 
-    <!-- Layer 1: Ambient water shimmer overlay -->
+    <!-- Layer 1: Ambient Effects -->
     <div id="water-shimmer"></div>
-
-    <!-- Layer 2: Floating particles (pollen/mist dots) -->
     <div id="particles-layer"></div>
 
-    <!-- Layer 3: River current paths + ripple rings (SVG) -->
+    <!-- Layer 2: River SVG Layer -->
     <div id="river-layer">
       <svg id="river-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
         <g id="river-currents" opacity="0.18">
@@ -49,19 +51,20 @@
       </svg>
     </div>
 
-    <!-- Layer 4: Products Container -->
+    <!-- Layer 3: Products Container -->
     <div id="products-container"></div>
 
-    <!-- Layer 5: Foreground botanicals -->
+    <!-- Layer 4: Foreground Overlay -->
     <div id="foreground-layer">
       <img id="foreground-botanicals" src="https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Fzen_foreground_botanicals-1771373869671.png" alt="">
     </div>
 
-    <!-- Layer 6: UI Chrome -->
+    <!-- Layer 5: UI Chrome -->
     <div id="ui-layer">
       <div id="header-bar">
         <div id="header-left">
           <div id="brand-mark">
+            <!-- Lotus Icon SVG -->
             <svg id="lotus-icon" viewBox="0 0 60 50" fill="none">
               <g id="lotus-petals">
                 <path d="M30,42 C30,42 20,28 20,18 C20,10 25,5 30,5 C35,5 40,10 40,18 C40,28 30,42 30,42Z" fill="rgba(201,168,76,0.6)" stroke="#C9A84C" stroke-width="0.8"/>
@@ -78,6 +81,7 @@
           </div>
         </div>
         <div id="header-center">
+          <!-- Animated Line (ScaleX) -->
           <div id="header-line-inner"></div>
         </div>
         <div id="header-right">
@@ -91,11 +95,10 @@
       </div>
     </div>
 
-    <!-- Vignette overlay -->
+    <!-- Vignette -->
     <div id="vignette"></div>
-
   </div>
 
-  <script src="animation.js?v=1771375657"></script>
+  <script src="animation.js?v=1771375658"></script>
 </body>
 </html>

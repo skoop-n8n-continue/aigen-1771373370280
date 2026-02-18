@@ -1,17 +1,30 @@
 /* ============================================================
    ZEN GARDEN DISPENSARY — animation.js
-   GSAP 3
+   GSAP 3 - Production Ready
    ============================================================ */
 
-// Register only free plugins available on CDN
-// Removed: SplitText, DrawSVGPlugin, MorphSVGPlugin (Paid Club Plugins)
-if (window.CustomEase) {
-  gsap.registerPlugin(CustomEase);
-} else {
-  console.warn("CustomEase not loaded");
+// 1. Safe Plugin Registration
+// We check if the global objects exist before registering to prevent crashes
+// if CDNs fail or behave unexpectedly.
+try {
+  if (window.gsap) {
+    var plugins = [];
+    if (window.SplitText) plugins.push(SplitText);
+    if (window.CustomEase) plugins.push(CustomEase);
+    if (window.MotionPathPlugin) plugins.push(MotionPathPlugin);
+    if (window.DrawSVGPlugin) plugins.push(DrawSVGPlugin);
+    if (window.MorphSVGPlugin) plugins.push(MorphSVGPlugin);
+    
+    if (plugins.length > 0) {
+      gsap.registerPlugin.apply(gsap, plugins);
+      console.log('[ZenMenu] Registered plugins:', plugins.map(p => p.version || 'unknown').join(', '));
+    }
+  }
+} catch (e) {
+  console.warn('[ZenMenu] Plugin registration warning:', e);
 }
 
-/* ── Custom eases ── */
+// 2. Custom Eases (if available)
 if (window.CustomEase) {
   CustomEase.create("riverFloat", "M0,0 C0.08,0 0.18,0.55 0.38,0.78 0.58,0.98 0.82,1.0 1,1");
   CustomEase.create("gentleSettle", "M0,0 C0.25,0.1 0.1,1.05 0.5,0.98 0.75,0.95 1,1");
@@ -21,10 +34,7 @@ if (window.CustomEase) {
 /* ── DESIGN: 3 product cards shown per cycle ── */
 const PRODUCTS_PER_CYCLE = 3;
 
-/* ── Layout: 3-card staggered river arrangement ──
-   Card 0 = upper left zone
-   Card 1 = center
-   Card 2 = lower right zone                        */
+/* ── Layout: 3-card staggered river arrangement ── */
 const CARD_POSITIONS = [
   { left: 120,  top: 140 },
   { left: 790,  top: 260 },
@@ -34,52 +44,85 @@ const CARD_POSITIONS = [
 let PRODUCTS = [];
 
 /* ============================================================
-   FALLBACK PRODUCT DATA — used if fetch fails
+   FALLBACK PRODUCT DATA — EXACTLY AS PROVIDED BY USER
    ============================================================ */
 const FALLBACK_PRODUCTS = [
   {
-    id: "1",
-    name: "Money Saki 1g Preroll",
-    category: "Distillate Cartridge",
-    vendor: "Hansen Pharms",
-    price: "2.5",
-    image_url: "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Fmkx_cartridge_box-1770340372957.png",
-    discounted_price: 0,
-    strainType: "Sativa",
-    labResults: [{ labTest: "THC", value: 75.09, labResultUnit: "Percentage" }]
+    "id": "4575638",
+    "name": "Money Saki 1g Preroll",
+    "category": "Distillate Cartridge",
+    "vendor": "Hansen Pharms",
+    "price": "2.5",
+    "image_url": "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Fmkx_cartridge_box-1770340372957.png",
+    "discounted_price": 0,
+    "description": "",
+    "quantityAvailable": 4,
+    "quantityUnits": "Quantity",
+    "unitWeight": 0.5,
+    "flowerEquivalentUnits": "g",
+    "strainType": "Sativa",
+    "labResults": [
+      {
+        "labTest": "THC",
+        "value": 75.09,
+        "labResultUnitId": 2,
+        "labResultUnit": "Percentage"
+      }
+    ]
   },
   {
-    id: "2",
-    name: "DIME Disposable 0.9g | Blueberry Lemon Haze",
-    category: "All-In-One Vape",
-    vendor: "Hansen Pharms",
-    price: "3.5",
-    image_url: "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Flegit_labs_box-1770340400372.png",
-    discounted_price: 2.5,
-    strainType: "Sativa",
-    labResults: [{ labTest: "THC", value: 82.3, labResultUnit: "Percentage" }]
+    "id": "4575639",
+    "name": "DIME Disposable 0.9g | Blueberry Lemon Haze",
+    "category": "All-In-One Vape",
+    "vendor": "Hansen Pharms",
+    "price": "3.5",
+    "image_url": "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Flegit_labs_box-1770340400372.png",
+    "discounted_price": 2.5,
+    "strainType": "Sativa",
+    "labResults": [
+      {
+        "labTest": "THC",
+        "value": 82.3,
+        "labResultUnitId": 2,
+        "labResultUnit": "Percentage"
+      }
+    ]
   },
   {
-    id: "3",
-    name: "Blueberry Muffin Live Rosin | 0.5g",
-    category: "Rosin Cartridge",
-    vendor: "Hansen Pharms",
-    price: "4.0",
-    image_url: "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Fmkx_disposable_cyan-1770340426216.png",
-    discounted_price: 0,
-    strainType: "Hybrid",
-    labResults: [{ labTest: "THC", value: 68.5, labResultUnit: "Percentage" }]
+    "id": "4575640",
+    "name": "Blueberry Muffin Live Rosin Cartridge | 0.5g",
+    "category": "Rosin Cartridge",
+    "vendor": "Hansen Pharms",
+    "price": "4.0",
+    "image_url": "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Fmkx_disposable_cyan-1770340426216.png",
+    "discounted_price": 0,
+    "strainType": "Hybrid",
+    "labResults": [
+      {
+        "labTest": "THC",
+        "value": 68.5,
+        "labResultUnitId": 2,
+        "labResultUnit": "Percentage"
+      }
+    ]
   },
   {
-    id: "4",
-    name: "Purple Punch Live Resin",
-    category: "Concentrate",
-    vendor: "Hansen Pharms",
-    price: "5.0",
-    image_url: "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Flegit_labs_box-1770340400372.png",
-    discounted_price: 3.5,
-    strainType: "Indica",
-    labResults: [{ labTest: "THC", value: 89.2, labResultUnit: "Percentage" }]
+    "id": "4575641",
+    "name": "Purple Punch Live Resin",
+    "category": "Concentrate",
+    "vendor": "Hansen Pharms",
+    "price": "5.0",
+    "image_url": "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Flegit_labs_box-1770340400372.png",
+    "discounted_price": 3.5,
+    "strainType": "Indica",
+    "labResults": [
+      {
+        "labTest": "THC",
+        "value": 89.2,
+        "labResultUnitId": 2,
+        "labResultUnit": "Percentage"
+      }
+    ]
   }
 ];
 
@@ -87,33 +130,40 @@ const FALLBACK_PRODUCTS = [
    BOOTSTRAP
    ============================================================ */
 async function loadProducts() {
+  console.log('[ZenMenu] Starting loadProducts...');
   try {
     const response = await fetch('./products.json?v=' + Date.now());
     if (!response.ok) throw new Error('HTTP ' + response.status);
     const data = await response.json();
     const loaded = data.products || [];
     PRODUCTS = loaded.length > 0 ? loaded : FALLBACK_PRODUCTS;
-    console.log('[ZenMenu] Loaded', PRODUCTS.length, 'products from products.json');
+    console.log('[ZenMenu] Loaded', PRODUCTS.length, 'products from fetch');
   } catch (err) {
     console.warn('[ZenMenu] Using fallback products. Error:', err.message);
     PRODUCTS = FALLBACK_PRODUCTS;
   }
 
-  // Ensure PRODUCTS is populated
+  // Double check
   if (!PRODUCTS || PRODUCTS.length === 0) {
-      PRODUCTS = FALLBACK_PRODUCTS;
+    console.warn('[ZenMenu] PRODUCTS empty after fallback logic. Forcing fallback.');
+    PRODUCTS = FALLBACK_PRODUCTS;
   }
 
   initScene();
   startAmbient();
+  startCycle();
+}
+
+function startCycle() {
+  console.log('[ZenMenu] Starting cycle...');
   animateCycle(0);
 }
 
 /* ============================================================
-   SCENE INIT — one-time persistent element setup
+   SCENE INIT
    ============================================================ */
 function initScene() {
-  /* Lotus petal gentle sway */
+  // Lotus Petal Sway
   gsap.to('#lotus-petals', {
     rotation: 3,
     transformOrigin: '50% 90%',
@@ -123,28 +173,42 @@ function initScene() {
     repeat: -1
   });
 
-  /* Header / footer fade in */
+  // Header/Footer Entrance
   gsap.from('#header-bar', { opacity: 0, y: -12, duration: 1.8, ease: 'power2.out', delay: 0.3 });
   gsap.from('#footer-strip', { opacity: 0, y: 12, duration: 1.8, ease: 'power2.out', delay: 0.5 });
 
-  /* Header gold line reveal via scaleX */
+  // Header Line (using ScaleX on div, safe and performant)
   gsap.fromTo('#header-line-inner',
     { scaleX: 0, transformOrigin: 'left center' },
     { scaleX: 1, duration: 2.4, ease: 'power2.inOut', delay: 0.6 }
   );
+  
+  // Use SplitText on Brand Name if available
+  if (window.SplitText) {
+    try {
+      new SplitText("#brand-name", { type: "chars" });
+      gsap.from("#brand-name div", {
+        opacity: 0,
+        y: 10,
+        duration: 1.2,
+        stagger: 0.05,
+        ease: "power2.out",
+        delay: 0.8
+      });
+    } catch (e) { console.warn('SplitText error:', e); }
+  }
 }
 
 /* ============================================================
-   AMBIENT ENVIRONMENT — looping subtle motion
+   AMBIENT ENVIRONMENT
    ============================================================ */
 function startAmbient() {
-  /* Slow background parallax drift */
-  const bgTl = gsap.timeline({ repeat: -1, yoyo: true });
-  bgTl
+  // Background Parallax
+  gsap.timeline({ repeat: -1, yoyo: true })
     .to('#background', { x: 18, y: 6, duration: 28, ease: 'sine.inOut' })
     .to('#background', { x: -10, y: -4, duration: 28, ease: 'sine.inOut' });
 
-  /* Foreground botanicals gentle sway */
+  // Foreground Sway
   gsap.to('#foreground-botanicals', {
     x: 8, y: -5, rotation: 0.4,
     transformOrigin: '0% 0%',
@@ -243,11 +307,13 @@ function spawnParticles() {
    BATCH HELPERS
    ============================================================ */
 function getBatch(batchIndex) {
-  if (!PRODUCTS || PRODUCTS.length === 0) return FALLBACK_PRODUCTS.slice(0, PRODUCTS_PER_CYCLE);
+  if (!PRODUCTS || PRODUCTS.length === 0) return [];
   var start = (batchIndex * PRODUCTS_PER_CYCLE) % PRODUCTS.length;
   var batch = [];
   for (var i = 0; i < PRODUCTS_PER_CYCLE; i++) {
-    batch.push(PRODUCTS[(start + i) % PRODUCTS.length]);
+    if (PRODUCTS.length > 0) {
+       batch.push(PRODUCTS[(start + i) % PRODUCTS.length]);
+    }
   }
   return batch;
 }
@@ -266,12 +332,12 @@ function getThc(product) {
 }
 
 /* ============================================================
-   RENDER BATCH — build card DOM
+   RENDER BATCH
    ============================================================ */
 function renderBatch(products) {
   var container = document.getElementById('products-container');
   if (!container) {
-    console.error('[ZenMenu] #products-container not found!');
+    console.error('[ZenMenu] CRITICAL: #products-container missing');
     return;
   }
   container.innerHTML = '';
@@ -316,8 +382,7 @@ function renderBatch(products) {
 
     container.appendChild(card);
 
-    /* CRITICAL: set initial state BEFORE any animation touches the card
-       Use gsap.set so GSAP owns the transform matrix from the start      */
+    // Initial State: Hidden and shifted upstream
     gsap.set(card, {
       position: 'absolute',
       left: pos.left,
@@ -328,6 +393,14 @@ function renderBatch(products) {
       rotation: -1.8
     });
   });
+  
+  // Optional: SplitText on product names if plugin exists
+  if (window.SplitText) {
+    try {
+      // We don't animate them here, but we could prepare them
+      // new SplitText(".product-name", { type: "lines,chars" });
+    } catch(e) {}
+  }
 
   console.log('[ZenMenu] Rendered', products.length, 'cards');
 }
@@ -337,8 +410,10 @@ function renderBatch(products) {
    ============================================================ */
 function animateCycle(batchIndex) {
   var batch = getBatch(batchIndex);
+  console.log('[ZenMenu] animateCycle index:', batchIndex, 'batch size:', batch.length);
 
   if (!batch || batch.length === 0) {
+    console.warn('[ZenMenu] Empty batch, retrying in 1s...');
     gsap.delayedCall(1, function() { animateCycle(batchIndex); });
     return;
   }
@@ -349,12 +424,10 @@ function animateCycle(batchIndex) {
   var cardArr = Array.from ? Array.from(cards) : [].slice.call(cards);
 
   if (cardArr.length === 0) {
-    console.error('[ZenMenu] No .product-card elements found after render!');
+    console.error('[ZenMenu] CRITICAL: No cards in DOM after render!');
     gsap.delayedCall(1, function() { animateCycle(batchIndex + 1); });
     return;
   }
-
-  console.log('[ZenMenu] Animating batch', batchIndex, '—', cardArr.length, 'cards');
 
   var ENTRANCE_DUR = 1.6;
   var IDLE_DUR = 7.0;
@@ -365,9 +438,9 @@ function animateCycle(batchIndex) {
     onComplete: function() { animateCycle(batchIndex + 1); }
   });
 
-  /* ── ACT 1: ENTRANCE ── cards float in from upstream left */
+  /* ── ACT 1: ENTRANCE ── */
   cardArr.forEach(function(card, i) {
-    var ease = window.CustomEase ? "riverFloat" : "power2.out"; // Fallback ease
+    var ease = window.CustomEase ? "riverFloat" : "power2.out";
     tl.to(card, {
       x: 0,
       y: 0,
@@ -381,12 +454,13 @@ function animateCycle(batchIndex) {
   var entranceEnd = ENTRANCE_DUR + (cardArr.length - 1) * STAGGER;
   var idleStart = entranceEnd + 0.2;
 
-  /* ── ACT 2: IDLE ── gentle water-bob & breathe */
+  /* ── ACT 2: IDLE ── */
   cardArr.forEach(function(card, i) {
     var bobAmt = 6 + i * 2;
     var bobDur = 3.5 + i * 0.4;
     var rotAmt = 0.35 * (i % 2 === 0 ? 1 : -1);
 
+    // Vertical bob
     tl.to(card, {
       y: -bobAmt,
       duration: bobDur,
@@ -395,6 +469,7 @@ function animateCycle(batchIndex) {
       repeat: 1
     }, idleStart + i * 0.3);
 
+    // Micro rotation
     tl.to(card, {
       rotation: rotAmt,
       duration: 3.4,
@@ -403,6 +478,7 @@ function animateCycle(batchIndex) {
       repeat: 1
     }, idleStart + i * 0.4);
 
+    // Gentle breathe scale
     tl.to(card, {
       scale: 1.012,
       duration: 2.8,
@@ -413,7 +489,7 @@ function animateCycle(batchIndex) {
     }, idleStart + 0.7 + i * 0.35);
   });
 
-  /* ── ACT 3: EXIT ── cards drift downstream right */
+  /* ── ACT 3: EXIT ── */
   var exitStart = idleStart + IDLE_DUR;
 
   cardArr.forEach(function(card, i) {
@@ -428,13 +504,13 @@ function animateCycle(batchIndex) {
     }, exitStart + i * 0.28);
   });
 
-  /* brief gap before next cycle */
+  /* Gap */
   tl.to({}, { duration: 0.5 });
-
-  return tl;
 }
 
-/* ============================================================
-   KICK OFF on DOMContentLoaded
-   ============================================================ */
-document.addEventListener('DOMContentLoaded', loadProducts);
+// Start
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadProducts);
+} else {
+  loadProducts();
+}
