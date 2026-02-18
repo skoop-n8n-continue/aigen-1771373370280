@@ -4,8 +4,6 @@
    ============================================================ */
 
 // 1. Safe Plugin Registration
-// We check if the global objects exist before registering to prevent crashes
-// if CDNs fail or behave unexpectedly.
 try {
   if (window.gsap) {
     var plugins = [];
@@ -24,11 +22,22 @@ try {
   console.warn('[ZenMenu] Plugin registration warning:', e);
 }
 
-// 2. Custom Eases (if available)
+// 2. Custom Eases (Fixed Path Data)
+// Wrapped in try-catch to prevent crash if data is invalid
 if (window.CustomEase) {
-  CustomEase.create("riverFloat", "M0,0 C0.08,0 0.18,0.55 0.38,0.78 0.58,0.98 0.82,1.0 1,1");
-  CustomEase.create("gentleSettle", "M0,0 C0.25,0.1 0.1,1.05 0.5,0.98 0.75,0.95 1,1");
-  CustomEase.create("waterExit", "M0,0 C0.2,0 0.45,0.25 0.65,0.65 0.82,0.93 1,1");
+  try {
+    // Valid cubic beziers: M0,0 C x1,y1 x2,y2 x,y
+    // riverFloat: Slow start, gentle acceleration
+    CustomEase.create("riverFloat", "M0,0 C0.25,0 0.35,0.2 1,1");
+    
+    // gentleSettle: Overshoot slightly then settle? Or just smooth easeOut
+    CustomEase.create("gentleSettle", "M0,0 C0.2,0.6 0.3,1 1,1");
+    
+    // waterExit: Slow start, then flow away
+    CustomEase.create("waterExit", "M0,0 C0.5,0 0.8,0.5 1,1");
+  } catch(e) {
+    console.warn("[ZenMenu] CustomEase creation failed, falling back to standard eases.", e);
+  }
 }
 
 /* ── DESIGN: 3 product cards shown per cycle ── */
@@ -440,7 +449,15 @@ function animateCycle(batchIndex) {
 
   /* ── ACT 1: ENTRANCE ── */
   cardArr.forEach(function(card, i) {
-    var ease = window.CustomEase ? "riverFloat" : "power2.out";
+    // Check if CustomEase is actually available and valid
+    var ease = "power2.out";
+    if (window.CustomEase) {
+      try {
+        // Just verify getting it doesn't throw
+        if (CustomEase.get("riverFloat")) ease = "riverFloat";
+      } catch(e) {}
+    }
+
     tl.to(card, {
       x: 0,
       y: 0,
@@ -493,7 +510,13 @@ function animateCycle(batchIndex) {
   var exitStart = idleStart + IDLE_DUR;
 
   cardArr.forEach(function(card, i) {
-    var ease = window.CustomEase ? "waterExit" : "power1.in";
+    var ease = "power1.in";
+    if (window.CustomEase) {
+      try {
+        if (CustomEase.get("waterExit")) ease = "waterExit";
+      } catch(e) {}
+    }
+
     tl.to(card, {
       x: 2500,
       y: 20 + i * 10,
