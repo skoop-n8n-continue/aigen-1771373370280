@@ -6,7 +6,8 @@
    then dissolves downstream to the right.
    ============================================================ */
 
-gsap.registerPlugin(SplitText, CustomEase, DrawSVGPlugin);
+// Register only plugins that are actually CDN-available (free tier)
+gsap.registerPlugin(SplitText, CustomEase);
 
 /* ── Custom eases ── */
 CustomEase.create("riverFloat", "M0,0 C0.1,0 0.2,0.6 0.4,0.8 0.6,1.0 0.8,1.0 1,1");
@@ -17,8 +18,8 @@ CustomEase.create("waterExit", "M0,0 C0.2,0 0.5,0.3 0.7,0.7 0.85,0.95 1,1");
 const PRODUCTS_PER_CYCLE = 3;
 
 /* ── Layout: 3-card staggered river arrangement ──
-   Cards are positioned asymmetrically, as if
-   floating at different depths in the stream.
+   Cards positioned asymmetrically, floating at
+   different depths in the stream.
    Card 0 = upper left zone
    Card 1 = center
    Card 2 = lower right zone
@@ -32,16 +33,70 @@ const CARD_POSITIONS = [
 let PRODUCTS = [];
 
 /* ============================================================
+   FALLBACK PRODUCT DATA
+   Used when fetch fails (e.g., opened as file://, CORS, etc.)
+   ============================================================ */
+const FALLBACK_PRODUCTS = [
+  {
+    id: "fallback_1",
+    name: "Money Saki 1g Preroll",
+    category: "Distillate Cartridge",
+    vendor: "Hansen Pharms",
+    price: "2.5",
+    image_url: "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Fmkx_cartridge_box-1770340372957.png",
+    discounted_price: 0,
+    strainType: "Sativa",
+    labResults: [{ labTest: "THC", value: 75.09, labResultUnit: "Percentage" }]
+  },
+  {
+    id: "fallback_2",
+    name: "DIME Disposable 0.9g | Blueberry Lemon Haze",
+    category: "All-In-One Vape",
+    vendor: "Hansen Pharms",
+    price: "3.5",
+    image_url: "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Flegit_labs_box-1770340400372.png",
+    discounted_price: 2.5,
+    strainType: "Sativa",
+    labResults: [{ labTest: "THC", value: 82.3, labResultUnit: "Percentage" }]
+  },
+  {
+    id: "fallback_3",
+    name: "Blueberry Muffin Live Rosin Cartridge | 0.5g",
+    category: "Rosin Cartridge",
+    vendor: "Hansen Pharms",
+    price: "4.0",
+    image_url: "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Fmkx_disposable_cyan-1770340426216.png",
+    discounted_price: 0,
+    strainType: "Hybrid",
+    labResults: [{ labTest: "THC", value: 68.5, labResultUnit: "Percentage" }]
+  },
+  {
+    id: "fallback_4",
+    name: "Purple Punch Live Resin",
+    category: "Concentrate",
+    vendor: "Hansen Pharms",
+    price: "5.0",
+    image_url: "https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Flegit_labs_box-1770340400372.png",
+    discounted_price: 3.5,
+    strainType: "Indica",
+    labResults: [{ labTest: "THC", value: 89.2, labResultUnit: "Percentage" }]
+  }
+];
+
+/* ============================================================
    BOOTSTRAP
    ============================================================ */
 async function loadProducts() {
   try {
     const response = await fetch('./products.json?v=' + Date.now());
+    if (!response.ok) throw new Error('HTTP ' + response.status);
     const data = await response.json();
-    PRODUCTS = data.products || [];
+    const loaded = data.products || [];
+    PRODUCTS = loaded.length > 0 ? loaded : FALLBACK_PRODUCTS;
+    console.log('[ZenMenu] Loaded', PRODUCTS.length, 'products from products.json');
   } catch (err) {
-    console.warn('products.json not found, using empty set', err);
-    PRODUCTS = [];
+    console.warn('[ZenMenu] Could not load products.json, using fallback data:', err.message);
+    PRODUCTS = FALLBACK_PRODUCTS;
   }
 
   initScene();
@@ -69,7 +124,7 @@ function initScene() {
   gsap.from('#header-bar', { opacity: 0, y: -12, duration: 1.8, ease: 'power2.out', delay: 0.3 });
   gsap.from('#footer-strip', { opacity: 0, y: 12, duration: 1.8, ease: 'power2.out', delay: 0.5 });
 
-  /* Animate the header gold line via scaleX — no DrawSVG needed on <line> */
+  /* Header gold line reveal via scaleX */
   gsap.fromTo('#header-line-inner',
     { scaleX: 0, transformOrigin: 'left center' },
     { scaleX: 1, duration: 2.4, ease: 'power2.inOut', delay: 0.6 }
@@ -129,7 +184,6 @@ function animateRiverCurrents() {
 }
 
 function scheduleRipples() {
-  /* Animate SVG circle r attribute using gsap attr plugin */
   function animateRipple(id, delay) {
     const el = document.querySelector(id);
     if (!el) return;
@@ -149,6 +203,7 @@ function scheduleRipples() {
    ============================================================ */
 function spawnParticles() {
   const container = document.getElementById('particles-layer');
+  if (!container) return;
   const COUNT = 22;
 
   for (let i = 0; i < COUNT; i++) {
@@ -196,19 +251,18 @@ function spawnParticles() {
    BATCH HELPERS
    ============================================================ */
 function getBatch(batchIndex) {
-  const start = (batchIndex * PRODUCTS_PER_CYCLE) % Math.max(PRODUCTS.length, 1);
+  if (PRODUCTS.length === 0) return [];
+  const start = (batchIndex * PRODUCTS_PER_CYCLE) % PRODUCTS.length;
   const batch = [];
   for (let i = 0; i < PRODUCTS_PER_CYCLE; i++) {
-    if (PRODUCTS.length > 0) {
-      batch.push(PRODUCTS[(start + i) % PRODUCTS.length]);
-    }
+    batch.push(PRODUCTS[(start + i) % PRODUCTS.length]);
   }
   return batch;
 }
 
 function formatPrice(priceStr) {
   const price = parseFloat(priceStr);
-  if (isNaN(price)) return priceStr;
+  if (isNaN(price)) return priceStr || '';
   return price.toFixed(2);
 }
 
@@ -223,30 +277,33 @@ function getThcValue(product) {
    ============================================================ */
 function renderBatch(products) {
   const container = document.getElementById('products-container');
+  if (!container) return;
   container.innerHTML = '';
 
   products.forEach((product, index) => {
-    const pos = CARD_POSITIONS[index];
+    if (!product) return;
+    const pos = CARD_POSITIONS[index] || CARD_POSITIONS[0];
     const thc = getThcValue(product);
     const hasDiscount = product.discounted_price && parseFloat(product.discounted_price) > 0;
-    const strainType = (product.strainType || 'Hybrid').toLowerCase();
+    const strainRaw = product.strainType || 'Hybrid';
+    const strainType = strainRaw.toLowerCase();
 
     const card = document.createElement('div');
     card.className = 'product-card';
     card.dataset.index = index;
 
-    /* Position the card — GSAP will handle x/y transforms */
+    /* Position the card — left/top anchor, GSAP handles x/y transforms */
     card.style.left = pos.left + 'px';
     card.style.top = pos.top + 'px';
 
     card.innerHTML = `
-      <span class="strain-badge ${strainType}">${product.strainType || 'Hybrid'}</span>
+      <span class="strain-badge ${strainType}">${strainRaw}</span>
       <div class="product-image-wrap">
-        <img class="product-image" src="${product.image_url}" alt="${product.name}" loading="eager">
+        <img class="product-image" src="${product.image_url || ''}" alt="${product.name || ''}" loading="eager" crossorigin="anonymous">
       </div>
       <div class="product-info">
         <div class="product-category">${product.category || ''}</div>
-        <h2 class="product-name">${product.name}</h2>
+        <h2 class="product-name">${product.name || ''}</h2>
         <div class="product-divider"></div>
         <div class="product-meta-row">
           ${thc !== null ? `
@@ -254,7 +311,7 @@ function renderBatch(products) {
               <div class="thc-label">THC Content</div>
               <div class="thc-value">${thc.toFixed(1)}<span class="thc-unit">%</span></div>
             </div>
-          ` : ''}
+          ` : '<div></div>'}
           <div class="product-price-row">
             ${hasDiscount ? `
               <div class="product-price has-discount"><span class="price-currency">$</span>${formatPrice(product.price)}</div>
@@ -270,8 +327,13 @@ function renderBatch(products) {
 
     container.appendChild(card);
 
-    /* Set GSAP initial state: offscreen left, invisible */
-    gsap.set(card, { x: -500, y: 20 * (index % 2 === 0 ? 1 : -1), opacity: 0 });
+    /* GSAP owns the transform from the start — offscreen left */
+    gsap.set(card, {
+      x: -600,
+      y: 20 * (index % 2 === 0 ? 1 : -1),
+      opacity: 0,
+      rotation: -1.5
+    });
   });
 }
 
@@ -280,9 +342,21 @@ function renderBatch(products) {
    ============================================================ */
 function animateCycle(batchIndex) {
   const batch = getBatch(batchIndex);
+
+  if (batch.length === 0) {
+    /* No products — retry after a short delay */
+    gsap.delayedCall(2, () => animateCycle(batchIndex));
+    return;
+  }
+
   renderBatch(batch);
 
   const cards = Array.from(document.querySelectorAll('.product-card'));
+
+  if (cards.length === 0) {
+    gsap.delayedCall(2, () => animateCycle(batchIndex + 1));
+    return;
+  }
 
   const ENTRANCE_DUR = 1.6;
   const IDLE_DUR = 6.0;
@@ -300,6 +374,7 @@ function animateCycle(batchIndex) {
       x: 0,
       y: 0,
       opacity: 1,
+      rotation: 0,
       duration: ENTRANCE_DUR,
       ease: 'riverFloat',
     }, i * STAGGER);
@@ -313,7 +388,7 @@ function animateCycle(batchIndex) {
     const bobDur = 3.6 + i * 0.5;
     const rotAmt = 0.4 * (i % 2 === 0 ? 1 : -1);
 
-    /* Vertical bob — timeline-local, won't conflict with entrance */
+    /* Vertical bob */
     tl.to(card, {
       y: -bobAmt,
       duration: bobDur,
@@ -347,16 +422,17 @@ function animateCycle(batchIndex) {
 
   cards.forEach((card, i) => {
     tl.to(card, {
-      x: 2300,
+      x: 2400,
       y: 25 + i * 8,
       opacity: 0,
+      rotation: 1,
       duration: EXIT_DUR,
       ease: 'waterExit',
     }, exitStart + i * 0.28);
   });
 
-  /* Brief gap before next batch */
-  tl.to({}, { duration: 0.5 }, exitStart + EXIT_DUR + (cards.length - 1) * 0.28);
+  /* Brief pause before next batch */
+  tl.to({}, { duration: 0.4 }, exitStart + EXIT_DUR + (cards.length - 1) * 0.28);
 
   return tl;
 }
