@@ -1,15 +1,22 @@
 /* ============================================================
    ZEN GARDEN DISPENSARY — animation.js
-   GSAP 3 (all plugins now free via CDN)
+   GSAP 3
    ============================================================ */
 
-// Register all plugins — all are now free and CDN-available
-gsap.registerPlugin(SplitText, CustomEase, MotionPathPlugin, DrawSVGPlugin, MorphSVGPlugin);
+// Register only free plugins available on CDN
+// Removed: SplitText, DrawSVGPlugin, MorphSVGPlugin (Paid Club Plugins)
+if (window.CustomEase) {
+  gsap.registerPlugin(CustomEase);
+} else {
+  console.warn("CustomEase not loaded");
+}
 
 /* ── Custom eases ── */
-CustomEase.create("riverFloat", "M0,0 C0.08,0 0.18,0.55 0.38,0.78 0.58,0.98 0.82,1.0 1,1");
-CustomEase.create("gentleSettle", "M0,0 C0.25,0.1 0.1,1.05 0.5,0.98 0.75,0.95 1,1");
-CustomEase.create("waterExit", "M0,0 C0.2,0 0.45,0.25 0.65,0.65 0.82,0.93 1,1");
+if (window.CustomEase) {
+  CustomEase.create("riverFloat", "M0,0 C0.08,0 0.18,0.55 0.38,0.78 0.58,0.98 0.82,1.0 1,1");
+  CustomEase.create("gentleSettle", "M0,0 C0.25,0.1 0.1,1.05 0.5,0.98 0.75,0.95 1,1");
+  CustomEase.create("waterExit", "M0,0 C0.2,0 0.45,0.25 0.65,0.65 0.82,0.93 1,1");
+}
 
 /* ── DESIGN: 3 product cards shown per cycle ── */
 const PRODUCTS_PER_CYCLE = 3;
@@ -25,7 +32,6 @@ const CARD_POSITIONS = [
 ];
 
 let PRODUCTS = [];
-let cycleRunning = false;
 
 /* ============================================================
    FALLBACK PRODUCT DATA — used if fetch fails
@@ -91,6 +97,11 @@ async function loadProducts() {
   } catch (err) {
     console.warn('[ZenMenu] Using fallback products. Error:', err.message);
     PRODUCTS = FALLBACK_PRODUCTS;
+  }
+
+  // Ensure PRODUCTS is populated
+  if (!PRODUCTS || PRODUCTS.length === 0) {
+      PRODUCTS = FALLBACK_PRODUCTS;
   }
 
   initScene();
@@ -356,13 +367,14 @@ function animateCycle(batchIndex) {
 
   /* ── ACT 1: ENTRANCE ── cards float in from upstream left */
   cardArr.forEach(function(card, i) {
+    var ease = window.CustomEase ? "riverFloat" : "power2.out"; // Fallback ease
     tl.to(card, {
       x: 0,
       y: 0,
       opacity: 1,
       rotation: 0,
       duration: ENTRANCE_DUR,
-      ease: 'riverFloat'
+      ease: ease
     }, i * STAGGER);
   });
 
@@ -405,13 +417,14 @@ function animateCycle(batchIndex) {
   var exitStart = idleStart + IDLE_DUR;
 
   cardArr.forEach(function(card, i) {
+    var ease = window.CustomEase ? "waterExit" : "power1.in";
     tl.to(card, {
       x: 2500,
       y: 20 + i * 10,
       opacity: 0,
       rotation: 1.2,
       duration: EXIT_DUR,
-      ease: 'waterExit'
+      ease: ease
     }, exitStart + i * 0.28);
   });
 
