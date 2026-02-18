@@ -1,0 +1,466 @@
+/* ============================================================
+   ZEN GARDEN DISPENSARY — style.css
+   Palette: Sage Green #7A9E7E | Warm Beige #E8DCC8 |
+            Deep Forest #3D5A3E | Ivory #F5EFE0 | Gold #C9A84C
+   Canvas: 1920 x 1080
+   ============================================================ */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #1a2018;
+  font-family: 'Jost', sans-serif;
+}
+
+/* ── SCENE ── */
+#scene {
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── BACKGROUND ── */
+#background {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://skoop-general.s3.us-east-1.amazonaws.com/n8n_image_gen%2Fzen_garden_background-1771373827757.png');
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  transform-origin: center center;
+}
+
+/* ── WATER SHIMMER ── */
+#water-shimmer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 45%;
+  z-index: 2;
+  background: linear-gradient(
+    to top,
+    rgba(201, 168, 76, 0.04) 0%,
+    rgba(122, 158, 126, 0.03) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* ── PARTICLES ── */
+#particles-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.7) 0%, rgba(201,168,76,0) 70%);
+  pointer-events: none;
+}
+
+/* ── RIVER SVG ── */
+#river-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+#river-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── PRODUCTS CONTAINER ── */
+#products-container {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ── PRODUCT CARD ── */
+.product-card {
+  position: absolute;
+  width: 340px;
+  background: linear-gradient(
+    145deg,
+    rgba(245, 239, 224, 0.88) 0%,
+    rgba(232, 220, 200, 0.82) 60%,
+    rgba(245, 239, 224, 0.78) 100%
+  );
+  border: 1px solid rgba(201, 168, 76, 0.4);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow:
+    0 8px 40px rgba(0,0,0,0.22),
+    0 2px 8px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.5);
+  backdrop-filter: blur(8px);
+  will-change: transform, opacity;
+}
+
+/* Top gold accent line */
+.product-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #C9A84C, transparent);
+  z-index: 2;
+}
+
+/* ── STRAIN BADGE ── */
+.strain-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 3px 10px;
+  border-radius: 2px;
+  font-family: 'Jost', sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  z-index: 3;
+}
+
+.strain-badge.sativa {
+  background: rgba(201, 168, 76, 0.18);
+  border: 1px solid rgba(201, 168, 76, 0.55);
+  color: #8B6914;
+}
+
+.strain-badge.indica {
+  background: rgba(61, 90, 62, 0.18);
+  border: 1px solid rgba(122, 158, 126, 0.55);
+  color: #3D5A3E;
+}
+
+.strain-badge.hybrid {
+  background: rgba(122, 158, 126, 0.15);
+  border: 1px solid rgba(122, 158, 126, 0.45);
+  color: #4a7a4e;
+}
+
+/* ── PRODUCT IMAGE AREA ── */
+.product-image-wrap {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    180deg,
+    rgba(245, 239, 224, 0.3) 0%,
+    rgba(232, 220, 200, 0.5) 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.product-image-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to top, rgba(245, 239, 224, 0.88), transparent);
+  z-index: 1;
+}
+
+.product-image {
+  max-width: 80%;
+  max-height: 175px;
+  object-fit: contain;
+  position: relative;
+  z-index: 0;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.18));
+}
+
+/* ── PRODUCT INFO ── */
+.product-info {
+  padding: 14px 18px 16px;
+}
+
+.product-category {
+  font-family: 'Jost', sans-serif;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #7A9E7E;
+  margin-bottom: 5px;
+}
+
+.product-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.28;
+  color: #2C3A2D;
+  margin-bottom: 10px;
+  letter-spacing: 0.01em;
+}
+
+/* ── DIVIDER ── */
+.product-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.45), transparent);
+  margin-bottom: 10px;
+}
+
+/* ── META ROW ── */
+.product-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.thc-label {
+  font-family: 'Jost', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #8a8a7a;
+}
+
+.thc-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #3D5A3E;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.thc-unit {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  font-weight: 300;
+  color: #7A9E7E;
+  margin-left: 2px;
+  vertical-align: super;
+}
+
+/* ── PRICE ROW ── */
+.product-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.product-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #2C3A2D;
+  letter-spacing: -0.01em;
+}
+
+.product-price.has-discount {
+  font-size: 14px;
+  font-weight: 400;
+  color: #aaa;
+  text-decoration: line-through;
+  align-self: center;
+}
+
+.product-price-discounted {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #7A9E7E;
+  letter-spacing: -0.01em;
+}
+
+.price-currency {
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  color: #7a7a6a;
+  letter-spacing: 0.05em;
+  vertical-align: super;
+  margin-right: 1px;
+}
+
+/* ── VENDOR ── */
+.product-vendor {
+  font-family: 'Jost', sans-serif;
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #999888;
+  margin-top: 8px;
+}
+
+/* ── FOREGROUND BOTANICALS ── */
+#foreground-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+#foreground-botanicals {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.88;
+}
+
+/* ── VIGNETTE ── */
+#vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 90% 80% at 50% 50%,
+    transparent 45%,
+    rgba(20, 26, 18, 0.55) 100%
+  );
+}
+
+/* ── UI LAYER ── */
+#ui-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+/* ── HEADER BAR ── */
+#header-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 60px;
+  background: linear-gradient(
+    to bottom,
+    rgba(30, 38, 28, 0.72) 0%,
+    rgba(30, 38, 28, 0.35) 70%,
+    transparent 100%
+  );
+}
+
+#header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+#brand-mark {
+  width: 52px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+#lotus-icon {
+  width: 100%;
+  height: 100%;
+}
+
+#brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+#brand-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  letter-spacing: 0.35em;
+  color: #F5EFE0;
+  line-height: 1;
+}
+
+#brand-tagline {
+  font-family: 'Jost', sans-serif;
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.32em;
+  color: rgba(201, 168, 76, 0.85);
+  text-transform: uppercase;
+}
+
+#header-center {
+  flex: 1;
+  max-width: 600px;
+  margin: 0 60px;
+  display: flex;
+  align-items: center;
+}
+
+#header-line {
+  width: 100%;
+  height: 2px;
+}
+
+#header-right {
+  text-align: right;
+}
+
+#header-category-label {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  color: rgba(245, 239, 224, 0.65);
+  text-transform: uppercase;
+}
+
+/* ── FOOTER STRIP ── */
+#footer-strip {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 60px;
+  background: linear-gradient(
+    to top,
+    rgba(20, 26, 18, 0.75) 0%,
+    rgba(20, 26, 18, 0.4) 60%,
+    transparent 100%
+  );
+}
+
+#footer-text-left,
+#footer-text-right {
+  font-family: 'Jost', sans-serif;
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(201, 168, 76, 0.55);
+}
